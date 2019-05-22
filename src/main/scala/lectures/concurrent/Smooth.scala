@@ -15,10 +15,14 @@ import scala.concurrent.Future
   * Подсказка: можно использовать AtomicReference
   *
   */
-object Smooth{
-  //def apply(thunk: =>): Smooth = ???
+object Smooth {
+  def apply[T](thunk: => T): Smooth[T] = new Smooth[T](thunk)
 }
 
-class Smooth {
-   def apply(): Future[_] = ???
+class Smooth[T] private(thunk: => T) {
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  private lazy val runningFuture: Future[T] = Future(thunk)
+
+  def apply(): Future[_] = runningFuture
 }
